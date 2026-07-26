@@ -37,10 +37,10 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, t, branchTag }) => {
             <div className="w-7 h-7 border-2 border-slate-200 border-t-brand-primary rounded-full animate-spin" />
           </div>
         ) : images.length > 0 ? (
-          <img 
+          <img
             key={images[currentImageIndex]}
-            src={images[currentImageIndex]} 
-            alt={room.name} 
+            src={images[currentImageIndex]}
+            alt={room.name}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             referrerPolicy="no-referrer"
             loading="lazy"
@@ -69,13 +69,13 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, t, branchTag }) => {
         {images.length > 1 && (
           <>
             <div className="absolute inset-0 flex items-center justify-between px-2 opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1)); }}
                 className="w-7 h-7 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/50 transition-all active:scale-95 shadow-md pointer-events-auto"
               >
                 <ChevronRight size={14} className="rotate-180" />
               </button>
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1)); }}
                 className="w-7 h-7 rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/50 transition-all active:scale-95 shadow-md pointer-events-auto"
               >
@@ -86,9 +86,9 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, t, branchTag }) => {
             {/* Bottom Dots Indicator */}
             <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1 px-2 py-0.5 bg-black/30 backdrop-blur-md rounded-full">
               {images.map((_, idx) => (
-                <div 
-                  key={idx} 
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'bg-white w-3.5' : 'bg-white/50'}`} 
+                <div
+                  key={idx}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'bg-white w-3.5' : 'bg-white/50'}`}
                 />
               ))}
             </div>
@@ -107,10 +107,10 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, t, branchTag }) => {
 
         {/* Amenities as Pills */}
         <div className="flex-1">
-          <AmenityList 
-            included={room.amenities} 
-            excluded={room.excludedAmenities} 
-            variant="pill" 
+          <AmenityList
+            included={room.amenities}
+            excluded={room.excludedAmenities}
+            variant="pill"
           />
         </div>
       </div>
@@ -136,7 +136,7 @@ export const RoomCard: React.FC<RoomCardProps> = ({ room, t, branchTag }) => {
             <span className="text-xs font-extrabold text-[#4F46E5] block">
               {formatPrice(room.pricing.monthly)}
             </span>
-            
+
             {/* Sub-fees placed directly under column 2 */}
             {room.pricing.fees && (
               <div className="pt-1.5 text-[8.5px] text-slate-500 leading-tight whitespace-pre-line border-t border-slate-200/50 mt-1">

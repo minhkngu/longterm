@@ -20,7 +20,7 @@ interface PropertyCardProps {
 export const PropertyCard: React.FC<PropertyCardProps> = ({ property, t }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const visibleRooms = useMemo(() => 
+  const visibleRooms = useMemo(() =>
     property.rooms.filter(room => !room.isHidden),
     [property.rooms]
   );
@@ -40,7 +40,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, t }) => {
   };
 
   return (
-    <div 
+    <div
       id={`property-${property.id}`}
       className="bg-white rounded-none sm:rounded-[32px] shadow-sm sm:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.08)] border-y sm:border border-slate-200 overflow-hidden mb-4 sm:mb-8 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-500 scroll-mt-24"
     >
@@ -49,7 +49,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, t }) => {
           <div className="flex items-center justify-between gap-3 mb-2">
             <h2 className="text-base sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight flex-1">{property.name}</h2>
           </div>
-          
+
           <div className="flex items-center gap-1.5 text-slate-500 text-[10px] sm:text-sm mb-4">
             <MapPin size={12} className="text-brand-primary sm:w-4 sm:h-4 shrink-0" />
             <span className="line-clamp-1">{property.address}</span>
@@ -59,7 +59,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, t }) => {
             <AmenityList included={property.amenities} excluded={property.excludedAmenities} />
           </div>
 
-          <button 
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="w-full flex items-center justify-center gap-1.5 py-2.5 bg-slate-900 text-white rounded-xl text-[11px] sm:text-sm font-bold hover:bg-slate-800 transition-all active:scale-[0.98] shadow-lg shadow-slate-900/10"
           >
@@ -70,7 +70,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, t }) => {
       </div>
 
       {isExpanded && (
-        <div 
+        <div
           className="overflow-hidden bg-slate-50 border-t border-slate-200"
         >
           <div className="p-5 sm:p-8 space-y-8 sm:space-y-10">
@@ -96,21 +96,33 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, t }) => {
                 <div className="w-1.5 h-1.5 bg-brand-primary rounded-full" />
                 {t.roomTypeList}
               </h3>
-              <div 
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              <div
+                onScroll={handleScroll}
+                className="flex sm:grid sm:grid-cols-1 gap-4 sm:gap-5 overflow-x-auto sm:overflow-x-visible pb-4 sm:pb-0 snap-x snap-mandatory -mx-5 sm:mx-0 px-5 sm:px-0 scrollbar-hide"
               >
                 {visibleRooms.length > 0 ? (
                   visibleRooms.map(room => (
-                    <div key={room.id} className="h-full">
+                    <div key={room.id} className="min-w-[85vw] sm:min-w-0 snap-center">
                       <RoomCard room={room} t={t} branchTag={property.tag} />
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full bg-white p-8 sm:p-10 rounded-2xl sm:rounded-3xl border border-dashed border-slate-200 text-center">
+                  <div className="bg-white p-8 sm:p-10 rounded-2xl sm:rounded-3xl border border-dashed border-slate-200 text-center">
                     <p className="text-slate-500 text-xs sm:text-sm">...</p>
                   </div>
                 )}
               </div>
+
+              {visibleRooms.length > 1 && (
+                <div className="flex sm:hidden justify-center gap-1.5 mt-2">
+                  {visibleRooms.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`h-1 rounded-full transition-all duration-300 ${idx === activeRoomIndex ? 'w-4 bg-brand-primary' : 'w-1 bg-slate-200'}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

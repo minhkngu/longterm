@@ -57,9 +57,8 @@ export default function App() {
                 <button
                   key={property.id}
                   onClick={() => setActivePropertyId(property.id)}
-                  className={`pb-3 px-4 sm:px-6 text-sm sm:text-base font-bold transition-all relative whitespace-nowrap ${
-                    isActive ? 'text-[#4F46E5]' : 'text-slate-500 hover:text-slate-800'
-                  }`}
+                  className={`pb-3 px-4 sm:px-6 text-sm sm:text-base font-bold transition-all relative whitespace-nowrap ${isActive ? 'text-[#4F46E5]' : 'text-slate-500 hover:text-slate-800'
+                    }`}
                 >
                   {property.name}
                   {isActive && (
@@ -114,10 +113,10 @@ export default function App() {
                     <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2.5">
                       TIỆN ÍCH CƠ SỞ
                     </h4>
-                    <AmenityList 
-                      included={activeProperty.amenities} 
-                      excluded={activeProperty.excludedAmenities} 
-                      variant="pill" 
+                    <AmenityList
+                      included={activeProperty.amenities}
+                      excluded={activeProperty.excludedAmenities}
+                      variant="pill"
                     />
                   </div>
                 </div>

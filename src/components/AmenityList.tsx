@@ -10,7 +10,7 @@ interface AmenityListProps {
 
 export const AmenityList: React.FC<AmenityListProps> = ({ included, excluded = [], compact = false, variant = 'list' }) => {
   const capitalize = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
-  
+
   if (variant === 'pill') {
     return (
       <div className="flex flex-wrap gap-1 sm:gap-1.5">
