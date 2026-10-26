@@ -1,7 +1,3 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 # LongTerm - Hệ thống quản lý cho thuê phòng trọ dài hạn
 
 Ứng dụng web hiển thị danh sách các cơ sở cho thuê phòng trọ dài hạn. Dữ liệu đọc từ nhóm `long-term` trong Base **Siris Web** qua API phía server.
@@ -83,3 +79,4 @@ src/
 ├── types.ts        # TypeScript types
 └── translations.ts # i18n
 api/properties.js     # Lark serverless API
+```
