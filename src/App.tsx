@@ -15,6 +15,7 @@ export default function App() {
   const [generalPolicies, setGeneralPolicies] = useState<Policy[]>([]);
   const [dateAdjustments, setDateAdjustments] = useState<DateAdjustment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [activePropertyId, setActivePropertyId] = useState<string>('');
 
   const t = translations.vi;
@@ -33,6 +34,7 @@ export default function App() {
         }
       } catch (error) {
         console.error('Failed to load properties:', error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -77,6 +79,8 @@ export default function App() {
             <div className="w-12 h-12 border-4 border-slate-200 border-t-brand-primary rounded-full animate-spin mb-4" />
             <p className="text-slate-500 font-medium">{t.loading}</p>
           </div>
+        ) : loadError ? (
+          <p className="text-center py-24 text-slate-600">Không thể tải dữ liệu phòng. Vui lòng thử lại sau.</p>
         ) : activeProperty ? (
           <div className="space-y-8 sm:space-y-10">
             {/* General Policies Section at the top */}

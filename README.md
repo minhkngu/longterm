@@ -4,7 +4,7 @@
 
 # LongTerm - Hệ thống quản lý cho thuê phòng trọ dài hạn
 
-Ứng dụng web hiển thị danh sách các cơ sở cho thuê phòng trọ dài hạn, bao gồm thông tin chi tiết về từng cơ sở, loại phòng, tiện ích, chính sách thuê và giá cả. Dữ liệu được đồng bộ từ Supabase.
+Ứng dụng web hiển thị danh sách các cơ sở cho thuê phòng trọ dài hạn. Dữ liệu đọc từ nhóm `long-term` trong Base **Siris Web** qua API phía server.
 
 ## Tính năng
 
@@ -12,7 +12,7 @@
 - Xem thông tin chi tiết từng cơ sở: địa chỉ, tiện ích, chính sách thuê
 - Danh sách các loại phòng kèm hình ảnh, tiện ích và bảng giá
 - Hỗ trợ hiển thị surcharge/discount theo ngày
-- Tích hợp Supabase để quản lý dữ liệu
+- Đọc dữ liệu Lark Base qua Vercel Function
 - Responsive design, hỗ trợ mobile
 
 ## Công nghệ sử dụng
@@ -20,7 +20,7 @@
 - **React 19** + **TypeScript**
 - **Vite** (build tool)
 - **Tailwind CSS v4** (styling)
-- **Supabase** (database & storage)
+- **Lark Base** (dữ liệu)
 - **Lucide React** (icons)
 - **Motion** (animations)
 
@@ -33,18 +33,25 @@
    npm install
    ```
 
-2. Tạo file `.env.local` với các biến môi trường:
+2. App nội bộ **Siris Web Read Only** (`cli_aa5471c51ff85f02`) có quyền đọc Base (`bitable:app:readonly`) và thông tin Wiki node (`wiki:node:read`), đồng thời được thêm làm cộng tác viên **Can view** cho Siris Web.
+
+3. Cấu hình các biến môi trường **chỉ phía server** trong Vercel (và `.env.local` khi chạy local):
    ```
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   LARK_APP_ID=cli_aa5471c51ff85f02
+   LARK_APP_SECRET=your_app_secret
+   VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
    ```
 
-3. Chạy ứng dụng:
+   API tự đổi Wiki node `F8RAwt5OViGWYukD5Qalm7pVgQd` thành Base token. Nếu đã biết Base token, có thể đặt `LARK_BASE_TOKEN` để bỏ qua bước này (không cần scope Wiki). Ba bảng trong nhóm `long-term` đã có ID mặc định; có thể ghi đè bằng `LARK_BRANCHES_TABLE_ID`, `LARK_ROOMS_TABLE_ID`, `LARK_SETTINGS_TABLE_ID`.
+
+   Không đặt secret trong biến `VITE_`. API public chỉ trả về những cột được phép của ba bảng `longterm_branches`, `longterm_room_types`, `longterm_settings` (chỉ dòng chính sách chung). API loại bỏ cơ sở ẩn, phòng ẩn và phòng thuộc cơ sở ẩn trước khi trả dữ liệu; phản hồi không được cache. Ảnh lấy từ Cloudinary.
+
+4. Chạy ứng dụng local, bao gồm `/api/properties`:
    ```bash
    npm run dev
    ```
 
-4. Mở trình duyệt tại `http://localhost:3000`
+   Mở `http://localhost:3000`. Khi chưa có `LARK_APP_SECRET`, API sẽ báo chưa được cấu hình.
 
 ## Scripts
 
@@ -68,11 +75,10 @@ src/
 │   └── SurchargeBanner.tsx
 ├── hooks/          # Custom hooks
 │   └── useCloudinaryImages.ts
-├── lib/            # Thư viện (Supabase client)
-│   └── supabase.ts
 ├── services/       # Data services
 │   └── dataService.ts
 ├── App.tsx         # Component chính
 ├── main.tsx        # Entry point
 ├── types.ts        # TypeScript types
 └── translations.ts # i18n
+api/properties.js     # Lark serverless API
