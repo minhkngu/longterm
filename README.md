@@ -13,6 +13,7 @@
 - Danh sách các loại phòng kèm hình ảnh, tiện ích và bảng giá
 - Hỗ trợ hiển thị surcharge/discount theo ngày
 - Đọc dữ liệu Lark Base qua Vercel Function
+- Refresh giữ tab cơ sở và vị trí cuộn trong cùng phiên trình duyệt
 - Responsive design, hỗ trợ mobile
 
 ## Công nghệ sử dụng
@@ -44,7 +45,7 @@
 
    API tự đổi Wiki node `F8RAwt5OViGWYukD5Qalm7pVgQd` thành Base token. Nếu đã biết Base token, có thể đặt `LARK_BASE_TOKEN` để bỏ qua bước này (không cần scope Wiki). Ba bảng trong nhóm `long-term` đã có ID mặc định; có thể ghi đè bằng `LARK_BRANCHES_TABLE_ID`, `LARK_ROOMS_TABLE_ID`, `LARK_SETTINGS_TABLE_ID`.
 
-   Không đặt secret trong biến `VITE_`. API public chỉ trả về những cột được phép của ba bảng `longterm_branches`, `longterm_room_types`, `longterm_settings` (chỉ dòng chính sách chung). API loại bỏ cơ sở ẩn, phòng ẩn và phòng thuộc cơ sở ẩn trước khi trả dữ liệu; phản hồi không được cache. Ảnh lấy từ Cloudinary.
+   Không đặt secret trong biến `VITE_`. API public chỉ trả về những cột được phép của ba bảng `longterm_branches`, `longterm_room_types`, `longterm_settings` (chỉ dòng chính sách chung). API loại bỏ cơ sở ẩn, phòng ẩn và phòng thuộc cơ sở ẩn trước khi trả dữ liệu; phản hồi không được cache để trạng thái ẩn luôn cập nhật. Token xác thực được tái sử dụng đến gần hết hạn, Base token từ Wiki được lưu 5 phút trong tiến trình server; ba bảng được tải song song. Các yêu cầu Lark có thời gian chờ 15 giây. Ảnh lấy từ Cloudinary.
 
 4. Chạy ứng dụng local, bao gồm `/api/properties`:
    ```bash

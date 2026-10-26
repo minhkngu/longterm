@@ -6,6 +6,7 @@ import { translations } from './translations';
 import { SurchargeBanner } from './components/SurchargeBanner';
 import { DateAdjustment } from './types';
 import { AmenityList } from './components/AmenityList';
+import { usePagePosition } from './hooks/usePagePosition';
 
 const GeneralPolicies = lazy(() => import('./components/GeneralPolicies').then(m => ({ default: m.GeneralPolicies })));
 const RoomCard = lazy(() => import('./components/RoomCard').then(m => ({ default: m.RoomCard })));
@@ -16,7 +17,7 @@ export default function App() {
   const [dateAdjustments, setDateAdjustments] = useState<DateAdjustment[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-  const [activePropertyId, setActivePropertyId] = useState<string>('');
+  const [activePropertyId, setActivePropertyId] = usePagePosition(!loading && !loadError);
 
   const t = translations.vi;
 
@@ -30,7 +31,7 @@ export default function App() {
         setGeneralPolicies(generalPolicies);
         setDateAdjustments(dateAdjustments);
         if (activeProps.length > 0) {
-          setActivePropertyId(activeProps[0].id);
+          setActivePropertyId(current => activeProps.some(p => p.id === current) ? current : activeProps[0].id);
         }
       } catch (error) {
         console.error('Failed to load properties:', error);

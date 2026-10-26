@@ -37,7 +37,7 @@ const parseBoolean = (value: unknown): boolean =>
 
 export const fetchAllData = async () => {
   try {
-    const response = await fetch('/api/properties');
+    const response = await fetch('/api/properties', { signal: AbortSignal.timeout(45000) });
     if (!response.ok) {
       const detail = await response.json().catch(() => ({}));
       throw new Error(`Property API returned ${response.status}${detail.code ? ` (Lark ${detail.code})` : ''}`);

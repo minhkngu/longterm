@@ -26,8 +26,14 @@ test('public API omits hidden branches, their rooms, hidden rooms and unlisted f
       { record_id: 'private-setting', fields: { key: 'private', value: 'secret' } },
     ],
   };
+  let authRequests = 0;
+  let tableRequests = 0;
   t.mock.method(globalThis, 'fetch', async url => {
-    if (String(url).includes('/auth/')) return Response.json({ code: 0, tenant_access_token: 'test' });
+    if (String(url).includes('/auth/')) {
+      authRequests++;
+      return Response.json({ code: 0, tenant_access_token: 'test', expire: 7200 });
+    }
+    tableRequests++;
     const tableId = new URL(url).pathname.split('/').at(-2);
     return Response.json({ code: 0, data: { items: rows[tableId], has_more: false } });
   });
@@ -44,4 +50,7 @@ test('public API omits hidden branches, their rooms, hidden rooms and unlisted f
   assert.deepEqual(body.settings.map(s => s.key), ['general_policies']);
   assert.equal(body.branches[0].private_notes, undefined);
   assert.equal(headers['Cache-Control'], 'no-store');
+  await handler({ method: 'GET' }, res);
+  assert.equal(authRequests, 1, 'reuse authentication token');
+  assert.equal(tableRequests, 6, 'read fresh table data on each request');
 });
