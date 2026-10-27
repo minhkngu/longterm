@@ -105,7 +105,7 @@ export const fetchProperties = async (): Promise<{
     // Try to match branch ID with room's branch reference in various formats
     const branchRooms: RoomType[] = rooms
       .filter(room => {
-        const rBranchIds = linkedIds(room.branches ?? room.branch_id ?? room.branchId ?? room.branchid ?? room.branch_ID);
+        const rBranchIds = linkedIds(room.branch ?? room.branches ?? room.branch_id ?? room.branchId ?? room.branchid ?? room.branch_ID);
         const references = [branch.id, branch.record_id, branch.name]
           .filter(Boolean).map(value => String(value).trim().toLowerCase());
         return rBranchIds.some(id => references.includes(id.trim().toLowerCase()));

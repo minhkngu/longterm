@@ -8,7 +8,7 @@ const WIKI_NODE_TOKEN = 'F8RAwt5OViGWYukD5Qalm7pVgQd';
 
 const PUBLIC_FIELDS = {
   branches: ['id', 'name', 'address', 'description', 'storage_folder', 'images', 'amenities', 'excluded_amenities', 'policies', 'promotion', 'tag', 'is_hidden'],
-  rooms: ['id', 'branches', 'branch_id', 'name', 'sqm', 'area', 'storage_folder', 'images', 'amenities', 'excluded_amenities', 'monthly_over', 'monthly_under', 'min_contract_months', 'fees', 'tag', 'is_hidden'],
+  rooms: ['id', 'branch', 'branch_id', 'name', 'sqm', 'area', 'storage_folder', 'images', 'amenities', 'excluded_amenities', 'monthly_over', 'monthly_under', 'min_contract_months', 'fees', 'tag', 'is_hidden'],
   settings: ['key', 'name', 'value'],
 };
 
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
     const publicBranches = branches.filter(branch => !isHidden(branch.is_hidden) && typeof branch.name === 'string' && branch.name.trim());
     const publicBranchRefs = new Set(publicBranches.flatMap(branch => references([branch.id, branch.record_id, branch.name])));
     const publicRooms = rooms.filter(room => !isHidden(room.is_hidden) &&
-      references(room.branches ?? room.branch_id).some(ref => publicBranchRefs.has(ref)));
+      references(room.branch ?? room.branch_id).some(ref => publicBranchRefs.has(ref)));
     res.setHeader('Cache-Control', 'no-store');
     return res.status(200).json({ branches: publicBranches, rooms: publicRooms, settings: settings.filter(s => ['general_policies', 'general_policy'].includes(s.key || s.name)) });
   } catch (error) {

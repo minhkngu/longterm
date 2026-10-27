@@ -15,11 +15,11 @@ test('public API omits hidden branches, their rooms, hidden rooms and unlisted f
       { record_id: 'blank', fields: {} },
     ],
     tblJefcV2kiRLRtH: [
-      { record_id: 'public-name', fields: { branches: 'Lune', is_hidden: 'false' } },
-      { record_id: 'public-link', fields: { branches: [{ record_id: 'visible' }] } },
-      { record_id: 'hidden-parent', fields: { branches: 'hidden0' } },
-      { record_id: 'hidden-room', fields: { branches: 'Lune', is_hidden: 'true' } },
-      { record_id: 'orphan', fields: { branches: 'missing' } },
+      { record_id: 'public-name', fields: { branch: 'Lune', is_hidden: 'false' } },
+      { record_id: 'public-link', fields: { branch: [{ record_id: 'visible' }] } },
+      { record_id: 'hidden-parent', fields: { branch: 'hidden0' } },
+      { record_id: 'hidden-room', fields: { branch: 'Lune', is_hidden: 'true' } },
+      { record_id: 'orphan', fields: { branch: 'missing' } },
     ],
     tbllkMCqH3GvrncZ: [
       { record_id: 'policy', fields: { key: 'general_policies', value: '[]' } },
