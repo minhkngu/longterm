@@ -1,7 +1,8 @@
+import { getSupabase } from '../lib/supabase';
 import { Property, RoomType, Policy, DateAdjustment } from '../types';
 
 const parseArray = (val: any): string[] => {
-  if (Array.isArray(val)) return val.map(v => typeof v === 'string' ? v : v?.text ?? v?.name ?? '').filter(Boolean);
+  if (Array.isArray(val)) return val;
   if (typeof val === 'string') {
     const trimmed = val.trim();
     if (!trimmed) return [];
@@ -27,27 +28,33 @@ const parseArray = (val: any): string[] => {
   return [];
 };
 
-const linkedIds = (val: any): string[] => {
-  if (!Array.isArray(val)) return val ? [String(val)] : [];
-  return val.map(v => typeof v === 'string' ? v : v?.record_id ?? v?.recordId ?? '').filter(Boolean);
-};
-
-const parseBoolean = (value: unknown): boolean =>
-  value === true || value === 1 || (typeof value === 'string' && ['true', '1'].includes(value.trim().toLowerCase()));
-
 export const fetchAllData = async () => {
-  try {
-    const response = await fetch('/api/properties', { signal: AbortSignal.timeout(45000) });
-    if (!response.ok) {
-      const detail = await response.json().catch(() => ({}));
-      throw new Error(`Property API returned ${response.status}${detail.code ? ` (Lark ${detail.code})` : ''}`);
+  const client = getSupabase();
+  const missingTable = (error: { code?: string }) => error.code === 'PGRST205' || error.code === '42P01';
+  const fetchTable = async (table: string, optional = false) => {
+    const { data, error } = await client.from(table).select('*');
+    if (error) {
+      if (optional && missingTable(error)) return null;
+      throw new Error(`Cannot load ${table}: ${error.message}`);
     }
-    const { branches, rooms, settings } = await response.json();
-    return { branches, rooms, settings, discounts: [], amenities: [], branchAmenities: [], roomAmenities: [], dateAdjustments: [] };
-  } catch (error) {
-    console.error('Unexpected error in fetchAllData:', error);
-    throw error;
-  }
+    return data || [];
+  };
+
+  const [branches, roomTypes, discounts, amenities, branchAmenities, roomAmenities, settings, dateAdjustments] = await Promise.all([
+    fetchTable('longterm_branches'),
+    fetchTable('longterm_room_types', true),
+    fetchTable('stay_discounts', true),
+    fetchTable('amenities', true),
+    fetchTable('branch_amenities', true),
+    fetchTable('room_amenities', true),
+    fetchTable('longterm_settings', true),
+    fetchTable('date_adjustments', true),
+  ]);
+  // Older projects use the rooms table; retain the original empty-table fallback.
+  const rooms = roomTypes?.length ? roomTypes : await fetchTable('rooms', roomTypes !== null);
+  return { branches: branches!, rooms: rooms || [], discounts: discounts || [], amenities: amenities || [],
+    branchAmenities: branchAmenities || [], roomAmenities: roomAmenities || [], settings: settings || [],
+    dateAdjustments: dateAdjustments || [] };
 };
 
 export const fetchProperties = async (): Promise<{
@@ -101,14 +108,15 @@ export const fetchProperties = async (): Promise<{
     .map(a => getTranslatedValue(a, 'name'));
 
   // Map data to our frontend types
-  const properties = branches.filter(branch => typeof branch.name === 'string' && branch.name.trim()).map(branch => {
+  const properties = branches.map(branch => {
     // Try to match branch ID with room's branch reference in various formats
     const branchRooms: RoomType[] = rooms
       .filter(room => {
-        const rBranchIds = linkedIds(room.branch ?? room.branches ?? room.branch_id ?? room.branchId ?? room.branchid ?? room.branch_ID);
-        const references = [branch.id, branch.record_id, branch.name]
-          .filter(Boolean).map(value => String(value).trim().toLowerCase());
-        return rBranchIds.some(id => references.includes(id.trim().toLowerCase()));
+        const rBranchId = room.branch_id || room.branchId || room.branchid || room.branch_ID;
+        const bId = branch.id;
+
+        if (!rBranchId || !bId) return false;
+        return String(rBranchId).trim().toLowerCase() === String(bId).trim().toLowerCase();
       })
       .map(room => {
         // Robust mapping for amenities
@@ -160,10 +168,10 @@ export const fetchProperties = async (): Promise<{
             monthly: Number(room.monthly_over ?? 0),
             monthly_under: Number(room.monthly_under ?? 0),
             minContractMonths: Number(room.min_contract_months ?? room.minContractMonths ?? room.mincontractmonths ?? 1),
-            fees: (typeof room.fees === 'string' ? room.fees : parseArray(room.fees).join(', ')) || 'Điện 4k, Nước 100k/ng'
+            fees: getTranslatedValue(room, 'fees', 'Điện 4k, Nước 100k/ng')
           },
           tag: room.tag || '',
-          isHidden: parseBoolean(room.is_hidden ?? room.isHidden ?? room.ishidden)
+          isHidden: !!(room.is_hidden ?? room.isHidden ?? room.ishidden ?? false)
         };
       })
       .sort((a, b) => a.pricing.monthly - b.pricing.monthly);
@@ -199,14 +207,12 @@ export const fetchProperties = async (): Promise<{
       images: parseArray(branch.images).length > 0 ? parseArray(branch.images) : ['https://picsum.photos/seed/branch/400/300'],
       amenities: branchAmenitiesList,
       excludedAmenities: parseArray(getTranslatedValue(branch, 'excluded_amenities')),
-      policies: Array.isArray(branchPolicies) ? branchPolicies : typeof branchPolicies === 'string' && branchPolicies.trim().startsWith('[') ? (() => {
-        try { return JSON.parse(branchPolicies) as Policy[]; } catch { return []; }
-      })() : [
+      policies: Array.isArray(branchPolicies) ? branchPolicies : [
         { title: 'Chính sách chung', content: 'Giờ giấc tự do, không chung chủ.' }
       ],
       promotion,
       tag: branch.tag || '',
-      isHidden: parseBoolean(branch.is_hidden ?? branch.isHidden ?? branch.ishidden),
+      isHidden: !!(branch.is_hidden ?? branch.isHidden ?? branch.ishidden ?? false),
       rooms: branchRooms
     };
   });
